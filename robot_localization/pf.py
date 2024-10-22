@@ -247,22 +247,22 @@ class ParticleFilter(Node):
 
         # TODO: modify particles using delta
 
-        # rotate delta matrix by the heaidng
-        # apply the matrix
-        # rotate the heading of the particle
 
+        # Delta (x,y) vector
         xy_transform = np.array([[delta[0]],
                                  [delta[1]]])        
 
-        for particle in self.particle_cloud:            
+        for particle in self.particle_cloud:    
+            # Rotation matrix for particle's heading
             particle_heading = np.array([[math.cos(particle.theta), -math.sin(particle.theta)],
                                          [math.sin(particle.theta), math.cos(particle.theta)]])
+            # Rotate the delta (x,y) vector by the rotation for the particle heading
             particle_delta = particle_heading @ xy_transform
             
             # Apply the transformation to the particle
             particle.x += particle_delta[0][0]
             particle.y += particle_delta[1][0]
-            # Adjust to the delta heading
+            # Adjust by the delta heading
             particle.theta += delta[2]
             
     def resample_particles(self):
@@ -297,8 +297,8 @@ class ParticleFilter(Node):
         for p in self.particle_cloud:
             # Compute the distance away in (x,y) the particle is from the nearest obstacle
             for deg in range(len(theta)):
-                x = p.x + r[deg] * math.cos(theta[deg] + p.theta)
-                y = p.y + r[deg] * math.sin(theta[deg] + p.theta)
+                x = p.x + r[deg] * math.cos(math.radians(theta[deg]) + p.theta)
+                y = p.y + r[deg] * math.sin(math.radians(theta[deg]) + p.theta)
 
                 # if nan or infinity make weight virtually zero so it cancels out
                 if (math.isinf(x) or math.isinf(y)) or (math.isnan(self.occupancy_field.get_closest_obstacle_distance(x=x, y=y))):
